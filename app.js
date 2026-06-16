@@ -1,6 +1,6 @@
 // Configuration de Supabase
 const SUPABASE_URL = "INSÈRE_TON_URL_ICI";
-const SUPABASE_ANON_KEY = "INSÈRE_TA_CLÉ_ANON_ICI";
+const SUPABASE_ANON_KEY = "sb_publishable_U3svCSuraFuLV-xtmVZhig_0L2murT-";
 
 
 // Attente du chargement complet de la page
