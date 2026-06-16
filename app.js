@@ -1,3 +1,8 @@
+// Configuration de Supabase
+const SUPABASE_URL = "INSÈRE_TON_URL_ICI";
+const SUPABASE_ANON_KEY = "INSÈRE_TA_CLÉ_ANON_ICI";
+
+
 // Attente du chargement complet de la page
 document.addEventListener('DOMContentLoaded', () => {
     
