@@ -1,5 +1,5 @@
 // Configuration de Supabase
-const SUPABASE_URL = "INSÈRE_TON_URL_ICI";
+const SUPABASE_URL = "https://ybbpeowdmtjdmrbbnqsg.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InliYnBlb3dkbXRqZG1yYmJucXNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MTgwMzAsImV4cCI6MjA5NzE5NDAzMH0.fbWceQVHXiK6kxz3fRTqn6TP8_m0weFGu27-COU00Ts";
 
 
