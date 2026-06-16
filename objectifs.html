@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Parfumerie — Objectifs</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0D0D0D; }
+    .dash-wrapper { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 62px); }
+    .sidebar { background-color: #111; border-right: 1px solid #222; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-label { font-size: 10px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin: 16px 0 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; color: #666; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-link:hover { background-color: #1A1A1A; color: #F5F0EB; }
+    .sidebar-link.active { background-color: rgba(123,28,46,0.15); color: #F5F0EB; border-left-color: #7B1C2E; }
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+    .content { padding: 36px 40px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #F5F0EB; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: #555; margin-bottom: 32px; }
+
+    /* Bouton + modal */
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .btn-new { padding: 10px 20px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-new:hover { background: #5C1522; }
+
+    /* Filtres */
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .filter-btn { padding: 7px 16px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 20px; color: #666; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .filter-btn:hover, .filter-btn.active { background: rgba(123,28,46,0.2); border-color: #7B1C2E; color: #F5F0EB; }
+
+    /* Grille objectifs */
+    .goals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .goal-card { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 20px; transition: border-color 0.2s; }
+    .goal-card:hover { border-color: #333; }
+    .goal-card.done { opacity: 0.5; }
+    .goal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .goal-title { font-size: 15px; font-weight: 600; color: #F5F0EB; flex: 1; }
+    .goal-pts-badge { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3); border-radius: 4px; padding: 3px 8px; font-size: 12px; font-weight: 700; color: #C9A84C; white-space: nowrap; margin-left: 8px; }
+    .goal-cat { display: inline-block; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .goal-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 16px; }
+    .goal-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .goal-tag { font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; }
+    .goal-actions { display: flex; gap: 8px; }
+    .btn-validate { flex: 1; padding: 9px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-validate:hover { background: #5C1522; }
+    .btn-validate.validated { background: #1A1A1A; color: #27AE60; border: 1px solid #27AE60; cursor: default; }
+    .btn-delete { padding: 9px 12px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 6px; color: #555; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .btn-delete:hover { border-color: #C0392B; color: #e74c3c; }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #141414; border: 1px solid #2A2A2A; border-radius: 12px; padding: 36px 32px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-family: 'Playfair Display', serif; font-size: 22px; color: #F5F0EB; margin-bottom: 4px; }
+    .modal .sub { font-size: 13px; color: #555; margin-bottom: 24px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
+    input, select, textarea { width: 100%; padding: 11px 14px; background: #1E1E1E; border: 1px solid #2A2A2A; border-radius: 6px; color: #F5F0EB; font-family: 'Inter', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+    input:focus, select:focus, textarea:focus { border-color: #7B1C2E; }
+    input::placeholder, textarea::placeholder { color: #444; }
+    textarea { resize: vertical; min-height: 80px; }
+    select option { background: #1E1E1E; }
+    .form-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; }
+    .btn-cancel { flex: 1; padding: 11px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 6px; color: #666; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-submit { flex: 2; padding: 11px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-submit:hover { background: #5C1522; }
+
+    .msg { display: none; padding: 11px 16px; border-radius: 6px; font-size: 13px; margin-bottom: 18px; }
+    .msg.success { display: block; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71; }
+    .msg.error { display: block; background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); color: #e74c3c; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #444; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; margin-bottom: 20px; }
+
+    @media (max-width: 768px) { .dash-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } .content { padding: 24px 16px; } .form-row2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">La <span>Parfumerie</span></a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#" id="logout-btn" style="color:#7B1C2E; font-weight:600;">Déconnexion</a>
+    </nav>
+  </header>
+
+  <div class="dash-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <a href="dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span> Accueil</a>
+      <a href="objectifs.html" class="sidebar-link active"><span class="sidebar-icon">🎯</span> Mes objectifs</a>
+      <a href="famille.html" class="sidebar-link"><span class="sidebar-icon">👥</span> Ma famille</a>
+      <a href="classement.html" class="sidebar-link"><span class="sidebar-icon">🏆</span> Classement</a>
+      <div class="sidebar-label">Compte</div>
+      <a href="profil.html" class="sidebar-link"><span class="sidebar-icon">👤</span> Mon profil</a>
+      <a href="#" id="logout-side" class="sidebar-link" style="color:#7B1C2E;"><span class="sidebar-icon">🚪</span> Déconnexion</a>
+    </aside>
+
+    <main class="content">
+      <div class="top-bar">
+        <div>
+          <h1 class="page-title">Mes objectifs</h1>
+          <p class="page-sub">Crée et suis tes objectifs personnels</p>
+        </div>
+        <button class="btn-new" onclick="openModal()">+ Nouvel objectif</button>
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterGoals('tous', this)">Tous</button>
+        <button class="filter-btn" onclick="filterGoals('actif', this)">Actifs</button>
+        <button class="filter-btn" onclick="filterGoals('terminé', this)">Terminés</button>
+        <button class="filter-btn" onclick="filterGoals('abandonné', this)">Abandonnés</button>
+      </div>
+
+      <div id="goals-container">
+        <div class="empty-state">
+          <div class="icon">🎯</div>
+          <p>Tu n'as pas encore d'objectifs.<br>Commence par en créer un !</p>
+          <button class="btn-new" onclick="openModal()">+ Créer mon premier objectif</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal création objectif -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h3>Nouvel objectif</h3>
+      <div class="sub">Définis un objectif clair et mesurable.</div>
+      <div id="modal-msg" class="msg"></div>
+
+      <form id="goal-form">
+        <div class="form-group">
+          <label>Titre de l'objectif *</label>
+          <input type="text" id="g-title" placeholder="Ex: Faire 3 séances de sport cette semaine" required>
+        </div>
+        <div class="form-row2">
+          <div class="form-group">
+            <label>Catégorie *</label>
+            <select id="g-category" required>
+              <option value="">-- Choisir --</option>
+              <option>Sport</option>
+              <option>Santé</option>
+              <option>Spiritualité</option>
+              <option>Études</option>
+              <option>Travail</option>
+              <option>Discipline</option>
+              <option>Lecture</option>
+              <option>Développement personnel</option>
+              <option>Projet personnel</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Difficulté *</label>
+            <select id="g-difficulty" required>
+              <option value="">-- Choisir --</option>
+              <option value="1">Facile (1 pt)</option>
+              <option value="2">Moyen (2 pts)</option>
+              <option value="3">Difficile (3 pts)</option>
+              <option value="5">Très difficile (5 pts)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="g-desc" placeholder="Décris ton objectif en détail…"></textarea>
+        </div>
+        <div class="form-row2">
+          <div class="form-group">
+            <label>Fréquence</label>
+            <select id="g-frequency">
+              <option value="quotidien">Quotidien</option>
+              <option value="hebdomadaire" selected>Hebdomadaire</option>
+              <option value="mensuel">Mensuel</option>
+              <option value="unique">Unique</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date de fin</label>
+            <input type="date" id="g-end">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
+          <button type="submit" class="btn-submit" id="goal-submit-btn">Créer l'objectif</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let currentUser = null;
+    let allGoals = [];
+    let currentFilter = 'tous';
+
+    function openModal() { document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('goal-form').reset(); }
+
+    function showModalMsg(type, text) {
+      const el = document.getElementById('modal-msg');
+      el.className = `msg ${type}`; el.textContent = text;
+    }
+
+    const diffMap = { '1': 'Facile', '2': 'Moyen', '3': 'Difficile', '5': 'Très difficile' };
+
+    function renderGoals(goals) {
+      const container = document.getElementById('goals-container');
+      const filtered = currentFilter === 'tous' ? goals : goals.filter(g => g.status === currentFilter);
+
+      if (!filtered.length) {
+        container.innerHTML = `<div class="empty-state"><div class="icon">🎯</div><p>Aucun objectif dans cette catégorie.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="goals-grid">${filtered.map(g => `
+        <div class="goal-card ${g.status === 'terminé' ? 'done' : ''}">
+          <div class="goal-top">
+            <div class="goal-title">${g.title}</div>
+            <div class="goal-pts-badge">${g.points} pts</div>
+          </div>
+          <div class="goal-cat">${g.category}</div>
+          <div class="goal-desc">${g.description || ''}</div>
+          <div class="goal-meta">
+            <span class="goal-tag">🔄 ${g.frequency}</span>
+            <span class="goal-tag">📊 ${diffMap[g.points] || g.points + ' pts'}</span>
+            ${g.end_date ? `<span class="goal-tag">📅 ${new Date(g.end_date).toLocaleDateString('fr-FR')}</span>` : ''}
+          </div>
+          <div class="goal-actions">
+            <button class="btn-validate ${g.status === 'terminé' ? 'validated' : ''}"
+              onclick="validateGoal('${g.id}', this)"
+              ${g.status === 'terminé' ? 'disabled' : ''}>
+              ${g.status === 'terminé' ? '✅ Terminé' : '✓ Valider'}
+            </button>
+            <button class="btn-delete" onclick="deleteGoal('${g.id}', this)">🗑</button>
+          </div>
+        </div>
+      `).join('')}</div>`;
+    }
+
+    async function loadGoals() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { window.location.href = 'connexion.html'; return; }
+      currentUser = session.user;
+
+      const { data: goals, error } = await db
+        .from('goals').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+
+      if (error) {
+        if (error.message.includes('does not exist')) {
+          document.getElementById('goals-container').innerHTML = `
+            <div class="empty-state">
+              <div class="icon">⚙️</div>
+              <p>La table <strong>goals</strong> n'existe pas encore dans Supabase.<br>
+              Crée-la depuis le SQL Editor de Supabase.</p>
+            </div>`;
+          return;
+        }
+      }
+
+      allGoals = goals || [];
+      renderGoals(allGoals);
+    }
+
+    function filterGoals(filter, btn) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGoals(allGoals);
+    }
+
+    document.getElementById('goal-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('goal-submit-btn');
+      btn.textContent = 'Création…'; btn.disabled = true;
+
+      const title    = document.getElementById('g-title').value.trim();
+      const category = document.getElementById('g-category').value;
+      const points   = parseInt(document.getElementById('g-difficulty').value);
+      const desc     = document.getElementById('g-desc').value.trim();
+      const freq     = document.getElementById('g-frequency').value;
+      const endDate  = document.getElementById('g-end').value || null;
+
+      if (!title || !category || !points) {
+        showModalMsg('error', 'Merci de remplir tous les champs obligatoires.');
+        btn.textContent = "Créer l'objectif"; btn.disabled = false;
+        return;
+      }
+
+      const { data, error } = await db.from('goals').insert([{
+        user_id: currentUser.id,
+        title, category, points,
+        description: desc,
+        frequency: freq,
+        end_date: endDate,
+        status: 'actif'
+      }]).select();
+
+      btn.textContent = "Créer l'objectif"; btn.disabled = false;
+
+      if (error) { showModalMsg('error', error.message); return; }
+
+      allGoals.unshift(data[0]);
+      renderGoals(allGoals);
+      closeModal();
+    });
+
+    async function validateGoal(id, btn) {
+      btn.textContent = '…'; btn.disabled = true;
+      const { error } = await db.from('goals').update({ status: 'terminé' }).eq('id', id);
+      if (error) { alert(error.message); btn.textContent = '✓ Valider'; btn.disabled = false; return; }
+      const g = allGoals.find(g => g.id === id);
+      if (g) g.status = 'terminé';
+      renderGoals(allGoals);
+    }
+
+    async function deleteGoal(id, btn) {
+      if (!confirm('Supprimer cet objectif ?')) return;
+      await db.from('goals').delete().eq('id', id);
+      allGoals = allGoals.filter(g => g.id !== id);
+      renderGoals(allGoals);
+    }
+
+    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+      btn.addEventListener('click', async (e) => { e.preventDefault(); await db.auth.signOut(); window.location.href = 'index.html'; });
+    });
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+
+    loadGoals();
+  </script>
+</body>
+</html>
