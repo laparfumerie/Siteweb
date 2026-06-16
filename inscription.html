@@ -1,51 +1,79 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Parfumerie - Inscription</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Parfumerie — Inscription</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>La Parfumerie</h1>
-        <nav>
-            <a href="index.html">Accueil</a>
-            <a href="connexion.html">Se connecter</a>
-        </nav>
-    </header>
+  <header>
+    <a href="index.html" class="logo">La <span>Parfumerie</span></a>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="connexion.html" class="btn-nav">Se connecter</a>
+    </nav>
+  </header>
 
-    <main>
-        <h2>Créer un compte Membre</h2>
-        
-        <form id="register-form">
-            <div>
-                <label for="firstname">Prénom :</label>
-                <input type="text" id="firstname" required>
-            </div>
-            
-            <div>
-                <label for="lastname">Nom :</label>
-                <input type="text" id="lastname" required>
-            </div>
+  <main>
+    <div class="card">
+      <div class="card-header">
+        <h2>Créer un compte</h2>
+        <div class="card-divider"></div>
+        <p>Rejoins La Parfumerie et commence à progresser.</p>
+      </div>
 
-            <div>
-                <label for="email">Adresse e-mail :</label>
-                <input type="email" id="email" required>
-            </div>
+      <!-- Message de retour -->
+      <div id="msg" class="msg"></div>
 
-            <div>
-                <label for="password">Mot de passe :</label>
-                <input type="password" id="password" required>
-            </div>
+      <form id="register-form" novalidate>
 
-            <button type="submit">S'inscrire</button>
-        </form>
-    </main>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="firstname">Prénom</label>
+            <input type="text" id="firstname" placeholder="Youssef" required>
+          </div>
+          <div class="form-group">
+            <label for="lastname">Nom</label>
+            <input type="text" id="lastname" placeholder="Martin" required>
+          </div>
+        </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
+        <div class="form-group">
+          <label for="email">Adresse e-mail</label>
+          <input type="email" id="email" placeholder="exemple@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" placeholder="8 caractères minimum" required minlength="8">
+        </div>
+
+        <div class="form-group">
+          <label for="password-confirm">Confirmer le mot de passe</label>
+          <input type="password" id="password-confirm" placeholder="Répète ton mot de passe" required>
+        </div>
+
+        <div class="form-group">
+          <label for="invite-code">Code d'invitation <span style="color:#555; font-weight:400; text-transform:none;">(optionnel)</span></label>
+          <input type="text" id="invite-code" placeholder="Ex: FAMILLE-ALPHA">
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Créer mon compte
+        </button>
+      </form>
+
+      <div class="card-footer">
+        Déjà membre ? <a href="connexion.html">Se connecter</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 
 </body>
 </html>
