@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Parfumerie — Classement</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0D0D0D; }
+    .dash-wrapper { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 62px); }
+    .sidebar { background-color: #111; border-right: 1px solid #222; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-label { font-size: 10px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin: 16px 0 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; color: #666; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-link:hover { background-color: #1A1A1A; color: #F5F0EB; }
+    .sidebar-link.active { background-color: rgba(123,28,46,0.15); color: #F5F0EB; border-left-color: #7B1C2E; }
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+    .content { padding: 36px 40px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #F5F0EB; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: #555; margin-bottom: 32px; }
+
+    .tabs { display: flex; gap: 4px; background: #111; border: 1px solid #222; border-radius: 8px; padding: 4px; width: fit-content; margin-bottom: 28px; }
+    .tab { padding: 9px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; color: #666; cursor: pointer; transition: all 0.2s; border: none; background: transparent; }
+    .tab.active { background: #7B1C2E; color: white; }
+
+    .rank-table { background: #141414; border: 1px solid #222; border-radius: 10px; overflow: hidden; }
+    .rank-header { display: grid; grid-template-columns: 50px 1fr 120px 120px; padding: 14px 20px; background: #111; border-bottom: 1px solid #222; font-size: 11px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1px; }
+    .rank-row { display: grid; grid-template-columns: 50px 1fr 120px 120px; padding: 16px 20px; border-bottom: 1px solid #1A1A1A; align-items: center; transition: background 0.2s; }
+    .rank-row:last-child { border-bottom: none; }
+    .rank-row:hover { background: #1A1A1A; }
+    .rank-row.top1 { background: rgba(201,168,76,0.08); }
+    .rank-row.top2 { background: rgba(200,200,200,0.04); }
+    .rank-row.top3 { background: rgba(180,120,60,0.05); }
+    .rank-num { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; }
+    .rank-num.r1 { color: #C9A84C; }
+    .rank-num.r2 { color: #999; }
+    .rank-num.r3 { color: #C87A3A; }
+    .rank-name { display: flex; align-items: center; gap: 12px; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #7B1C2E, #C9A84C); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+    .rank-name-text .main { font-size: 14px; font-weight: 500; color: #D5CFC8; }
+    .rank-name-text .sub { font-size: 12px; color: #555; }
+    .rank-pts { font-size: 16px; font-weight: 700; color: #C9A84C; }
+    .rank-stars { font-size: 14px; color: #C9A84C; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #444; }
+    .empty-state .icon { font-size: 40px; margin-bottom: 16px; }
+
+    @media (max-width: 768px) {
+      .dash-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } .content { padding: 24px 16px; }
+      .rank-header, .rank-row { grid-template-columns: 40px 1fr 80px; }
+      .rank-stars { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">La <span>Parfumerie</span></a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#" id="logout-btn" style="color:#7B1C2E; font-weight:600;">Déconnexion</a>
+    </nav>
+  </header>
+
+  <div class="dash-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <a href="dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span> Accueil</a>
+      <a href="objectifs.html" class="sidebar-link"><span class="sidebar-icon">🎯</span> Mes objectifs</a>
+      <a href="famille.html" class="sidebar-link"><span class="sidebar-icon">👥</span> Ma famille</a>
+      <a href="classement.html" class="sidebar-link active"><span class="sidebar-icon">🏆</span> Classement</a>
+      <div class="sidebar-label">Compte</div>
+      <a href="profil.html" class="sidebar-link"><span class="sidebar-icon">👤</span> Mon profil</a>
+      <a href="#" id="logout-side" class="sidebar-link" style="color:#7B1C2E;"><span class="sidebar-icon">🚪</span> Déconnexion</a>
+    </aside>
+
+    <main class="content">
+      <h1 class="page-title">Classement</h1>
+      <p class="page-sub">La progression de toute la communauté</p>
+
+      <div class="tabs">
+        <button class="tab active" onclick="showTab('membres', this)">👤 Membres</button>
+        <button class="tab" onclick="showTab('familles', this)">🏠 Familles</button>
+      </div>
+
+      <!-- Classement membres -->
+      <div id="tab-membres">
+        <div class="rank-table">
+          <div class="rank-header">
+            <div>#</div><div>Membre</div><div>Points</div><div>Objectifs</div>
+          </div>
+          <div id="members-list">
+            <div class="empty-state"><div class="icon">⏳</div><p>Chargement…</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classement familles -->
+      <div id="tab-familles" style="display:none;">
+        <div class="rank-table">
+          <div class="rank-header">
+            <div>#</div><div>Famille</div><div>Points</div><div>⭐ Étoiles</div>
+          </div>
+          <div id="families-list">
+            <div class="empty-state"><div class="icon">⏳</div><p>Chargement…</p></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function showTab(name, btn) {
+      document.getElementById('tab-membres').style.display = name === 'membres' ? 'block' : 'none';
+      document.getElementById('tab-familles').style.display = name === 'familles' ? 'block' : 'none';
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    const medals = ['r1', 'r2', 'r3'];
+    const medalEmojis = ['🥇', '🥈', '🥉'];
+
+    async function loadRankings() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { window.location.href = 'connexion.html'; return; }
+
+      // Classement membres via profiles
+      try {
+        const { data: profiles } = await db
+          .from('profiles')
+          .select('*')
+          .order('total_points', { ascending: false })
+          .limit(20);
+
+        if (profiles && profiles.length) {
+          document.getElementById('members-list').innerHTML = profiles.map((p, i) => {
+            const initials = ((p.first_name||'')[0]||'') + ((p.last_name||'')[0]||'') || '?';
+            return `<div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
+              <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
+              <div class="rank-name">
+                <div class="avatar">${initials}</div>
+                <div class="rank-name-text">
+                  <div class="main">${p.first_name || ''} ${p.last_name || ''}</div>
+                  <div class="sub">${p.family_name || 'Sans famille'}</div>
+                </div>
+              </div>
+              <div class="rank-pts">${p.total_points || 0} pts</div>
+              <div class="rank-stars">${p.goals_completed || 0} objectifs</div>
+            </div>`;
+          }).join('');
+        } else {
+          document.getElementById('members-list').innerHTML = `
+            <div class="empty-state"><div class="icon">🏆</div><p>Aucun membre à afficher encore.</p></div>`;
+        }
+      } catch (e) {
+        document.getElementById('members-list').innerHTML = `
+          <div class="empty-state"><div class="icon">⚙️</div><p>Table profiles non configurée.</p></div>`;
+      }
+
+      // Classement familles
+      try {
+        const { data: families } = await db
+          .from('families')
+          .select('*')
+          .order('total_points', { ascending: false });
+
+        if (families && families.length) {
+          document.getElementById('families-list').innerHTML = families.map((f, i) => `
+            <div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
+              <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
+              <div class="rank-name">
+                <div class="avatar" style="background: linear-gradient(135deg, #7B1C2E, #5C1522);">🏠</div>
+                <div class="rank-name-text">
+                  <div class="main">${f.name}</div>
+                  <div class="sub">${f.member_count || 0} membres</div>
+                </div>
+              </div>
+              <div class="rank-pts">${f.total_points || 0} pts</div>
+              <div class="rank-stars">${'⭐'.repeat(f.stars || 0)} ${f.stars || 0}</div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('families-list').innerHTML = `
+            <div class="empty-state"><div class="icon">🏠</div><p>Aucune famille à afficher encore.</p></div>`;
+        }
+      } catch (e) {
+        document.getElementById('families-list').innerHTML = `
+          <div class="empty-state"><div class="icon">⚙️</div><p>Table families non configurée.</p></div>`;
+      }
+    }
+
+    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+      btn.addEventListener('click', async (e) => { e.preventDefault(); await db.auth.signOut(); window.location.href = 'index.html'; });
+    });
+
+    loadRankings();
+  </script>
+</body>
+</html>
