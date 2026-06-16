@@ -12,15 +12,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('register-form');
     if (registerForm) {
         registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Empêche la page de se recharger
+            e.preventDefault(); // Empêche la page de se recharger brutalement
             
             const firstname = document.getElementById('firstname').value;
             const lastname = document.getElementById('lastname').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            console.log("Tentative d'inscription :", { firstname, lastname, email });
-            // C'est ici que nous brancherons l'appel Supabase
+            // Appel Supabase pour l'inscription avec les prénoms et noms
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        first_name: firstname,
+                        last_name: lastname
+                    }
+                }
+            });
+
+            if (error) {
+                alert("Erreur lors de l'inscription : " + error.message);
+            } else {
+                alert("Inscription réussie ! 🎉 Tu peux maintenant te connecter.");
+            }
         });
     }
 
@@ -28,13 +43,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Empêche la page de se recharger
+            e.preventDefault(); // Empêche la page de se recharger brutalement
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            console.log("Tentative de connexion :", { email });
-            // C'est ici que nous brancherons l'appel Supabase
+            // Appel Supabase pour la connexion
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Erreur de connexion : " + error.message);
+            } else {
+                alert("Connexion réussie ! 🔓");
+                // Redirection immédiate vers la page d'accueil
+                window.location.href = "index.html"; 
+            }
         });
     }
 });
