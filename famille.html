@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Parfumerie — Ma Famille</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background-color: #0D0D0D; }
+    .dash-wrapper { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 62px); }
+    .sidebar { background-color: #111; border-right: 1px solid #222; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; }
+    .sidebar-label { font-size: 10px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin: 16px 0 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; color: #666; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-link:hover { background-color: #1A1A1A; color: #F5F0EB; }
+    .sidebar-link.active { background-color: rgba(123,28,46,0.15); color: #F5F0EB; border-left-color: #7B1C2E; }
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+    .content { padding: 36px 40px; }
+    .page-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #F5F0EB; margin-bottom: 4px; }
+    .page-sub { font-size: 14px; color: #555; margin-bottom: 32px; }
+
+    .family-header { background: linear-gradient(135deg, rgba(123,28,46,0.3), rgba(201,168,76,0.1)); border: 1px solid rgba(123,28,46,0.3); border-radius: 12px; padding: 28px 32px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+    .family-name { font-family: 'Playfair Display', serif; font-size: 28px; color: #F5F0EB; }
+    .family-stars { font-size: 22px; color: #C9A84C; }
+    .family-stats-row { display: flex; gap: 32px; flex-wrap: wrap; }
+    .fam-stat { text-align: center; }
+    .fam-stat .val { font-family: 'Playfair Display', serif; font-size: 28px; color: #F5F0EB; }
+    .fam-stat .lbl { font-size: 12px; color: #666; margin-top: 2px; }
+
+    .section-title { font-family: 'Playfair Display', serif; font-size: 18px; color: #F5F0EB; margin-bottom: 16px; }
+    .pairs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .pair-card { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 20px; }
+    .pair-label { font-size: 11px; font-weight: 600; color: #C9A84C; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+    .member-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #1A1A1A; }
+    .member-row:last-child { border-bottom: none; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #7B1C2E, #C9A84C); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: white; flex-shrink: 0; }
+    .member-info .name { font-size: 14px; font-weight: 500; color: #D5CFC8; }
+    .member-info .pts { font-size: 12px; color: #555; }
+    .pair-total { margin-top: 12px; padding-top: 12px; border-top: 1px solid #1A1A1A; display: flex; justify-content: space-between; align-items: center; }
+    .pair-total .label { font-size: 12px; color: #555; }
+    .pair-total .val { font-size: 16px; font-weight: 700; color: #C9A84C; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #444; }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state p { font-size: 15px; line-height: 1.6; }
+
+    @media (max-width: 768px) { .dash-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } .content { padding: 24px 16px; } .family-header { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">La <span>Parfumerie</span></a>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="#" id="logout-btn" style="color:#7B1C2E; font-weight:600;">Déconnexion</a>
+    </nav>
+  </header>
+
+  <div class="dash-wrapper">
+    <aside class="sidebar">
+      <div class="sidebar-label">Navigation</div>
+      <a href="dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span> Accueil</a>
+      <a href="objectifs.html" class="sidebar-link"><span class="sidebar-icon">🎯</span> Mes objectifs</a>
+      <a href="famille.html" class="sidebar-link active"><span class="sidebar-icon">👥</span> Ma famille</a>
+      <a href="classement.html" class="sidebar-link"><span class="sidebar-icon">🏆</span> Classement</a>
+      <div class="sidebar-label">Compte</div>
+      <a href="profil.html" class="sidebar-link"><span class="sidebar-icon">👤</span> Mon profil</a>
+      <a href="#" id="logout-side" class="sidebar-link" style="color:#7B1C2E;"><span class="sidebar-icon">🚪</span> Déconnexion</a>
+    </aside>
+
+    <main class="content">
+      <h1 class="page-title">Ma famille</h1>
+      <p class="page-sub">Votre force, votre progression collective</p>
+      <div id="family-content">
+        <div class="empty-state">
+          <div class="icon">🏠</div>
+          <p>Tu n'appartiens pas encore à une famille.<br>
+          Un administrateur doit t'assigner à une famille.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadFamily() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) { window.location.href = 'connexion.html'; return; }
+
+      const user = session.user;
+
+      // Chercher la famille du membre
+      try {
+        const { data: membership } = await db
+          .from('family_members')
+          .select('*, families(*)')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!membership) return; // Affiche l'état vide
+
+        const family = membership.families;
+
+        // Charger tous les membres de la famille
+        const { data: members } = await db
+          .from('family_members')
+          .select('*, profiles(*)')
+          .eq('family_id', family.id);
+
+        // Charger les binômes
+        const { data: pairs } = await db
+          .from('pairs')
+          .select('*, pair_members(*, profiles(*))')
+          .eq('family_id', family.id);
+
+        renderFamily(family, members || [], pairs || []);
+      } catch (e) {
+        // Tables pas encore créées
+        document.getElementById('family-content').innerHTML = `
+          <div class="empty-state">
+            <div class="icon">⚙️</div>
+            <p>Les tables famille ne sont pas encore configurées dans Supabase.<br>
+            <a href="https://supabase.com/dashboard" target="_blank" style="color:#C9A84C;">Configurer Supabase →</a></p>
+          </div>`;
+      }
+    }
+
+    function renderFamily(family, members, pairs) {
+      const stars = family.stars || 0;
+      const totalPts = members.reduce((sum, m) => sum + (m.points || 0), 0);
+
+      document.getElementById('family-content').innerHTML = `
+        <div class="family-header">
+          <div>
+            <div class="family-name">🏠 ${family.name}</div>
+            <div class="family-stars">${'⭐'.repeat(stars)} ${stars} étoile${stars > 1 ? 's' : ''} ce mois</div>
+          </div>
+          <div class="family-stats-row">
+            <div class="fam-stat"><div class="val">${members.length}</div><div class="lbl">Membres</div></div>
+            <div class="fam-stat"><div class="val">${totalPts}</div><div class="lbl">Points totaux</div></div>
+            <div class="fam-stat"><div class="val">${pairs.length}</div><div class="lbl">Binômes</div></div>
+          </div>
+        </div>
+
+        <h2 class="section-title">Binômes</h2>
+        <div class="pairs-grid">
+          ${pairs.length ? pairs.map((pair, i) => `
+            <div class="pair-card">
+              <div class="pair-label">Binôme ${i + 1}</div>
+              ${(pair.pair_members || []).map(pm => {
+                const p = pm.profiles || {};
+                const initials = ((p.first_name||'')[0]||'') + ((p.last_name||'')[0]||'') || '?';
+                return `<div class="member-row">
+                  <div class="avatar">${initials}</div>
+                  <div class="member-info">
+                    <div class="name">${p.first_name || ''} ${p.last_name || ''}</div>
+                    <div class="pts">${pm.points || 0} points</div>
+                  </div>
+                </div>`;
+              }).join('')}
+              <div class="pair-total">
+                <span class="label">Total binôme</span>
+                <span class="val">${(pair.pair_members||[]).reduce((s,m) => s+(m.points||0), 0)} pts</span>
+              </div>
+            </div>
+          `).join('') : '<div class="pair-card" style="color:#444; text-align:center; padding:32px;">Aucun binôme configuré.</div>'}
+        </div>
+
+        <h2 class="section-title">Tous les membres</h2>
+        <div class="pairs-grid">
+          ${members.map(m => {
+            const p = m.profiles || {};
+            const initials = ((p.first_name||'')[0]||'') + ((p.last_name||'')[0]||'') || '?';
+            return `<div class="pair-card">
+              <div class="member-row" style="border:none; padding:0;">
+                <div class="avatar">${initials}</div>
+                <div class="member-info">
+                  <div class="name">${p.first_name || ''} ${p.last_name || ''}</div>
+                  <div class="pts">${m.points || 0} points · ${m.role || 'Membre'}</div>
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+      btn.addEventListener('click', async (e) => { e.preventDefault(); await db.auth.signOut(); window.location.href = 'index.html'; });
+    });
+
+    loadFamily();
+  </script>
+</body>
+</html>
