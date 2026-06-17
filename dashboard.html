@@ -6,168 +6,423 @@
   <title>La Parfumerie — Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Stats */
+    /* ── Dashboard spécifique ── */
+    body { background-color: #0D0D0D; }
+
+    .dash-wrapper {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 62px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #111;
+      border-right: 1px solid #222;
+      padding: 28px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 0 12px;
+      margin: 16px 0 6px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      color: #666;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      background-color: #1A1A1A;
+      color: #F5F0EB;
+    }
+
+    .sidebar-link.active {
+      background-color: rgba(123, 28, 46, 0.15);
+      color: #F5F0EB;
+      border-left-color: #7B1C2E;
+    }
+
+    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* Contenu principal */
+    .content {
+      padding: 36px 40px;
+      overflow-y: auto;
+    }
+
+    .welcome-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .welcome-bar h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #F5F0EB;
+    }
+
+    .welcome-bar p {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    /* Stats cards */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
+      gap: 16px;
+      margin-bottom: 32px;
     }
-    .stat-card {
-      background: #141414; border: 1px solid #222;
-      border-radius: 10px; padding: 18px 16px;
-    }
-    .stat-label {
-      font-size: 10px; font-weight: 600; color: #444;
-      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
-    }
-    .stat-value {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px; font-weight: 700; color: var(--blanc); line-height: 1;
-    }
-    .stat-sub { font-size: 11px; color: #444; margin-top: 5px; }
-    .stat-card.gold { border-color: rgba(201,168,76,0.25); }
-    .stat-card.gold .stat-value { color: var(--dore); }
-    .stat-card.bord .stat-value { color: #e05a72; }
 
-    /* Panels */
-    .panels-grid {
+    .stat-card {
+      background-color: #141414;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .stat-card:hover { border-color: #333; }
+
+    .stat-card .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: #F5F0EB;
+      line-height: 1;
+    }
+
+    .stat-card .stat-sub {
+      font-size: 12px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .stat-card.gold { border-color: rgba(201, 168, 76, 0.3); }
+    .stat-card.gold .stat-value { color: #C9A84C; }
+
+    .stat-card.bordeaux { border-color: rgba(123, 28, 46, 0.3); }
+    .stat-card.bordeaux .stat-value { color: #e05a72; }
+
+    /* Sections */
+    .section-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 20px;
     }
+
     .panel {
-      background: #141414; border: 1px solid #222;
-      border-radius: 10px; padding: 22px 20px;
-      min-width: 0;
+      background-color: #141414;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 24px;
     }
+
     .panel-title {
       font-family: 'Playfair Display', serif;
-      font-size: 15px; color: var(--blanc); margin-bottom: 3px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #F5F0EB;
+      margin-bottom: 4px;
     }
-    .panel-sub { font-size: 12px; color: #444; margin-bottom: 18px; }
 
+    .panel-sub {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Objectifs liste */
     .goal-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0; border-bottom: 1px solid #1A1A1A;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid #1E1E1E;
     }
+
     .goal-item:last-child { border-bottom: none; }
+
     .goal-check {
-      width: 20px; height: 20px; border: 2px solid #2A2A2A;
-      border-radius: 50%; cursor: pointer; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; transition: all 0.2s;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #333;
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
     }
-    .goal-check.done { background: var(--bordeaux); border-color: var(--bordeaux); color: white; }
-    .goal-info { flex: 1; min-width: 0; }
-    .goal-name { font-size: 13px; font-weight: 500; color: #D5CFC8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .goal-cat { font-size: 11px; color: #444; }
-    .goal-pts { font-size: 13px; font-weight: 700; color: var(--dore); white-space: nowrap; }
 
+    .goal-check.done {
+      background-color: #7B1C2E;
+      border-color: #7B1C2E;
+      color: white;
+    }
+
+    .goal-info { flex: 1; }
+
+    .goal-info .goal-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #D5CFC8;
+    }
+
+    .goal-info .goal-cat {
+      font-size: 11px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    .goal-pts {
+      font-size: 13px;
+      font-weight: 600;
+      color: #C9A84C;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px 0;
+      color: #444;
+      font-size: 14px;
+    }
+
+    .empty-state .empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+    /* Famille panel */
+    .family-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(123, 28, 46, 0.15);
+      border: 1px solid rgba(123, 28, 46, 0.3);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #e05a72;
+      margin-bottom: 16px;
+    }
+
+    .binome-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #1E1E1E;
+    }
+
+    .binome-row:last-child { border-bottom: none; }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7B1C2E, #C9A84C);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .binome-info .binome-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #D5CFC8;
+    }
+
+    .binome-info .binome-pts {
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* Bouton ajouter objectif */
     .btn-add {
-      display: inline-flex; align-items: center; gap: 6px;
-      margin-top: 14px; padding: 8px 14px;
-      background: rgba(123,28,46,0.15);
-      border: 1px solid rgba(123,28,46,0.35);
-      border-radius: 6px; color: #e05a72;
-      font-size: 13px; font-weight: 600;
-      cursor: pointer; text-decoration: none; transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      background-color: rgba(123, 28, 46, 0.2);
+      border: 1px solid rgba(123, 28, 46, 0.4);
+      border-radius: 6px;
+      color: #e05a72;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      margin-top: 16px;
     }
-    .btn-add:hover { background: rgba(123,28,46,0.3); }
 
-    .empty-state { text-align: center; padding: 28px 16px; color: #444; }
-    .empty-icon { font-size: 28px; margin-bottom: 10px; }
-
-    .welcome-bar { margin-bottom: 24px; }
-    .welcome-bar h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px; color: var(--blanc);
+    .btn-add:hover {
+      background-color: rgba(123, 28, 46, 0.35);
     }
-    .welcome-bar .date { font-size: 13px; color: #444; margin-top: 3px; }
 
+    /* Loading overlay */
     #loading-screen {
-      position: fixed; inset: 0; background: var(--noir);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      z-index: 999; gap: 14px;
+      position: fixed;
+      inset: 0;
+      background-color: #0D0D0D;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      gap: 16px;
     }
-    .load-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px; color: var(--blanc);
-    }
-    .load-title span { color: var(--dore); }
 
+    #loading-screen .load-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #F5F0EB;
+    }
+
+    #loading-screen .load-title span { color: #C9A84C; }
+
+    /* Responsive */
     @media (max-width: 900px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .panels-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
     }
-    @media (max-width: 480px) {
+
+    @media (max-width: 768px) {
+      .dash-wrapper { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .content { padding: 24px 16px; }
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .stat-value { font-size: 22px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Écran de chargement -->
   <div id="loading-screen">
     <div class="load-title">La <span>Parfumerie</span></div>
     <div class="spinner"></div>
   </div>
 
+  <!-- Header -->
   <header>
     <a href="index.html" class="logo">La <span>Parfumerie</span></a>
     <nav>
-      <span id="user-email" style="font-size:12px; color:#444; margin-right:4px;"></span>
-      <a href="#" id="logout-btn" style="color:var(--bordeaux); font-weight:600;">Déconnexion</a>
+      <span id="user-email" style="font-size:13px; color:#555; margin-right:8px;"></span>
+      <a href="objectifs.html">Objectifs</a>
+      <a href="#" id="logout-btn" style="color:#7B1C2E; font-weight:600;">Déconnexion</a>
     </nav>
   </header>
 
+  <!-- Dashboard -->
   <div class="dash-wrapper">
-    <!-- Sidebar desktop -->
+
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-label">Navigation</div>
-      <a href="dashboard.html" class="sidebar-link active"><span class="sidebar-icon">🏠</span> Accueil</a>
-      <a href="objectifs.html" class="sidebar-link"><span class="sidebar-icon">🎯</span> Mes objectifs</a>
-      <a href="famille.html" class="sidebar-link"><span class="sidebar-icon">👥</span> Ma famille</a>
-      <a href="classement.html" class="sidebar-link"><span class="sidebar-icon">🏆</span> Classement</a>
+      <a href="dashboard.html" class="sidebar-link active">
+        <span class="sidebar-icon">🏠</span> Accueil
+      </a>
+      <a href="objectifs.html" class="sidebar-link">
+        <span class="sidebar-icon">🎯</span> Mes objectifs
+      </a>
+      <a href="famille.html" class="sidebar-link">
+        <span class="sidebar-icon">👥</span> Ma famille
+      </a>
+      <a href="classement.html" class="sidebar-link">
+        <span class="sidebar-icon">🏆</span> Classement
+      </a>
+
       <div class="sidebar-label">Compte</div>
-      <a href="profil.html" class="sidebar-link"><span class="sidebar-icon">👤</span> Mon profil</a>
-      <a href="#" id="logout-side" class="sidebar-link" style="color:var(--bordeaux);"><span class="sidebar-icon">🚪</span> Déconnexion</a>
+      <a href="profil.html" class="sidebar-link">
+        <span class="sidebar-icon">👤</span> Mon profil
+      </a>
+      <a href="#" id="logout-btn-side" class="sidebar-link" style="color:#7B1C2E;">
+        <span class="sidebar-icon">🚪</span> Déconnexion
+      </a>
     </aside>
 
+    <!-- Contenu -->
     <main class="content">
+
       <div class="welcome-bar">
-        <h2>Bienvenue, <span id="user-name">…</span> 👋</h2>
-        <div class="date" id="user-date"></div>
+        <div>
+          <h2>Bienvenue, <span id="user-name">…</span> 👋</h2>
+          <p id="user-date">Chargement…</p>
+        </div>
       </div>
 
+      <!-- Stats -->
       <div class="stats-grid">
         <div class="stat-card gold">
-          <div class="stat-label">Points semaine</div>
-          <div class="stat-value" id="pts-semaine">0</div>
+          <div class="stat-label">Points cette semaine</div>
+          <div class="stat-value" id="pts-semaine">—</div>
           <div class="stat-sub">points personnels</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Points mois</div>
-          <div class="stat-value" id="pts-mois">0</div>
-          <div class="stat-sub">cumulés</div>
+          <div class="stat-label">Points ce mois</div>
+          <div class="stat-value" id="pts-mois">—</div>
+          <div class="stat-sub">points cumulés</div>
         </div>
-        <div class="stat-card bord">
+        <div class="stat-card bordeaux">
           <div class="stat-label">Objectifs actifs</div>
-          <div class="stat-value" id="nb-objectifs">0</div>
+          <div class="stat-value" id="nb-objectifs">—</div>
           <div class="stat-sub">en cours</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Étoiles famille</div>
-          <div class="stat-value" id="etoiles">0</div>
+          <div class="stat-value" id="etoiles">—</div>
           <div class="stat-sub">ce mois-ci</div>
         </div>
       </div>
 
-      <div class="panels-grid">
+      <!-- Panels -->
+      <div class="section-grid">
+
+        <!-- Objectifs -->
         <div class="panel">
-          <div class="panel-title">🎯 Objectifs actifs</div>
-          <div class="panel-sub">Coche pour valider un objectif</div>
+          <div class="panel-title">🎯 Mes objectifs actifs</div>
+          <div class="panel-sub">Coche pour valider un objectif du jour</div>
           <div id="goals-list">
             <div class="empty-state">
               <div class="empty-icon">📋</div>
@@ -177,134 +432,183 @@
           <a href="objectifs.html" class="btn-add">+ Ajouter un objectif</a>
         </div>
 
+        <!-- Famille -->
         <div class="panel">
           <div class="panel-title">👥 Ma famille & binôme</div>
           <div class="panel-sub">Compétition en cours</div>
           <div id="family-info">
             <div class="empty-state">
               <div class="empty-icon">🏠</div>
-              Tu n'appartiens pas encore à une famille.
+              Tu n'appartiens pas encore<br>à une famille.
             </div>
           </div>
         </div>
+
       </div>
+
     </main>
   </div>
 
-  <!-- Navigation mobile (barre en bas) -->
-  <nav class="mobile-nav">
-    <a href="dashboard.html" class="active">
-      <span class="nav-icon">🏠</span>
-      Accueil
-    </a>
-    <a href="objectifs.html">
-      <span class="nav-icon">🎯</span>
-      Objectifs
-    </a>
-    <a href="famille.html">
-      <span class="nav-icon">👥</span>
-      Famille
-    </a>
-    <a href="classement.html">
-      <span class="nav-icon">🏆</span>
-      Classement
-    </a>
-    <a href="profil.html">
-      <span class="nav-icon">👤</span>
-      Profil
-    </a>
-  </nav>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script>
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="config.js"></script>
 
-    const timeout = setTimeout(() => {
-      document.getElementById('loading-screen').innerHTML = `
-        <div style="text-align:center; padding:40px; max-width:360px;">
-          <div style="font-size:36px; margin-bottom:14px;">⏱️</div>
-          <div class="load-title" style="margin-bottom:10px;">Connexion lente</div>
-          <p style="color:#555; font-size:14px; margin-bottom:20px;">Vérifie tes clés Supabase dans config.js</p>
-          <button onclick="location.reload()"
-            style="padding:10px 20px; background:#7B1C2E; color:white; border:none;
-                   border-radius:6px; cursor:pointer; font-size:14px; margin-right:8px;">
-            Réessayer
-          </button>
-          <a href="connexion.html"
-            style="padding:10px 20px; background:#1A1A1A; color:#777;
-                   border-radius:6px; text-decoration:none; font-size:14px;">
-            Déconnexion
-          </a>
-        </div>`;
-    }, 5000);
+<script>
+  // ── Vérification config ─────────────────────────────────
+  if (!SUPABASE_URL || SUPABASE_URL.includes('XXXXXXX') ||
+      !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('...')) {
+    document.getElementById('loading-screen').innerHTML = `
+      <div style="text-align:center; padding:40px; max-width:400px;">
+        <div style="font-size:40px; margin-bottom:16px;">⚙️</div>
+        <div class="load-title" style="margin-bottom:12px;">Configuration manquante</div>
+        <p style="color:#666; font-size:14px; line-height:1.6;">
+          Ouvre <strong style="color:#C9A84C;">config.js</strong> et remplace
+          <br><code style="color:#e05a72;">SUPABASE_URL</code> et
+          <code style="color:#e05a72;">SUPABASE_ANON_KEY</code>
+          <br>avec tes vraies clés Supabase.
+        </p>
+        <a href="https://supabase.com/dashboard" target="_blank"
+           style="display:inline-block; margin-top:20px; padding:10px 20px;
+                  background:#7B1C2E; color:white; border-radius:6px;
+                  text-decoration:none; font-size:14px;">
+          Ouvrir Supabase →
+        </a>
+      </div>
+    `;
+    throw new Error('Config Supabase manquante');
+  }
 
-    async function loadDashboard() {
-      try {
-        const { data: { session } } = await db.auth.getSession();
-        clearTimeout(timeout);
+  // ── Init Supabase ───────────────────────────────────────
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (!session) { window.location.href = 'connexion.html'; return; }
+  // ── Timeout de sécurité (5 secondes) ───────────────────
+  const loadingTimeout = setTimeout(() => {
+    document.getElementById('loading-screen').innerHTML = `
+      <div style="text-align:center; padding:40px; max-width:400px;">
+        <div style="font-size:40px; margin-bottom:16px;">⏱️</div>
+        <div class="load-title" style="margin-bottom:12px;">Connexion lente</div>
+        <p style="color:#666; font-size:14px; line-height:1.6;">
+          Impossible de contacter Supabase.<br>
+          Vérifie tes clés dans <strong style="color:#C9A84C;">config.js</strong>
+          et ta connexion internet.
+        </p>
+        <button onclick="window.location.reload()"
+           style="display:inline-block; margin-top:16px; padding:10px 20px;
+                  background:#7B1C2E; color:white; border-radius:6px;
+                  border:none; cursor:pointer; font-size:14px; margin-right:8px;">
+          Réessayer
+        </button>
+        <a href="connexion.html"
+           style="display:inline-block; margin-top:16px; padding:10px 20px;
+                  background:#1E1E1E; color:#aaa; border-radius:6px;
+                  text-decoration:none; font-size:14px; border:1px solid #333;">
+          Retour connexion
+        </a>
+      </div>
+    `;
+  }, 5000);
 
-        const user = session.user;
-        const meta = user.user_metadata || {};
-        const firstName = meta.first_name || user.email.split('@')[0];
+  // ── Chargement dashboard ────────────────────────────────
+  async function loadDashboard() {
+    try {
+      const { data: { session }, error } = await db.auth.getSession();
 
-        document.getElementById('user-name').textContent = firstName;
-        document.getElementById('user-email').textContent = user.email;
-        document.getElementById('user-date').textContent =
-          new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      clearTimeout(loadingTimeout); // Annule le timeout si ça répond
 
-        // Objectifs
-        let goalsCount = 0;
-        try {
-          const { data: goals } = await db
-            .from('goals').select('*')
-            .eq('user_id', user.id).eq('status', 'actif');
-          goalsCount = goals ? goals.length : 0;
-
-          if (goals && goals.length > 0) {
-            document.getElementById('goals-list').innerHTML = goals.map(g => `
-              <div class="goal-item">
-                <div class="goal-check" onclick="this.classList.toggle('done')"></div>
-                <div class="goal-info">
-                  <div class="goal-name">${g.title}</div>
-                  <div class="goal-cat">${g.category || ''}</div>
-                </div>
-                <div class="goal-pts">${g.points || 1}pt</div>
-              </div>
-            `).join('');
-          }
-        } catch(e) {}
-
-        document.getElementById('nb-objectifs').textContent = goalsCount;
-        document.getElementById('loading-screen').style.display = 'none';
-
-      } catch(err) {
-        clearTimeout(timeout);
-        document.getElementById('loading-screen').innerHTML = `
-          <div style="text-align:center; padding:40px;">
-            <div style="font-size:36px; margin-bottom:14px;">❌</div>
-            <div class="load-title">Erreur</div>
-            <p style="color:#555; font-size:13px; margin-top:8px;">${err.message}</p>
-            <a href="connexion.html" style="display:inline-block; margin-top:18px; padding:10px 20px;
-               background:#7B1C2E; color:white; border-radius:6px; text-decoration:none; font-size:14px;">
-              Retour connexion
-            </a>
-          </div>`;
+      if (error || !session) {
+        window.location.href = 'connexion.html';
+        return;
       }
-    }
 
-    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
-      btn.addEventListener('click', async(e) => {
+      const user = session.user;
+
+      // Nom affiché
+      const firstName = user.user_metadata?.first_name
+        || user.email.split('@')[0];
+      document.getElementById('user-name').textContent = firstName;
+      document.getElementById('user-email').textContent = user.email;
+
+      // Date
+      const now = new Date();
+      document.getElementById('user-date').textContent =
+        now.toLocaleDateString('fr-FR', {
+          weekday: 'long', year: 'numeric',
+          month: 'long', day: 'numeric'
+        });
+
+      // Charger objectifs (si la table existe)
+      let goalsCount = 0;
+      try {
+        const { data: goals } = await db
+          .from('goals')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'actif');
+
+        goalsCount = goals ? goals.length : 0;
+
+        if (goals && goals.length > 0) {
+          document.getElementById('goals-list').innerHTML = goals.map(g => `
+            <div class="goal-item">
+              <div class="goal-check" onclick="toggleGoal(this)">
+                <span>✓</span>
+              </div>
+              <div class="goal-info">
+                <div class="goal-name">${g.title}</div>
+                <div class="goal-cat">${g.category || 'Objectif'}</div>
+              </div>
+              <div class="goal-pts">${g.points || 1} pts</div>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        // Table pas encore créée, on ignore
+      }
+
+      // Stats
+      document.getElementById('pts-semaine').textContent = '0';
+      document.getElementById('pts-mois').textContent = '0';
+      document.getElementById('nb-objectifs').textContent = goalsCount;
+      document.getElementById('etoiles').textContent = '⭐ 0';
+
+      // Cacher le loading
+      document.getElementById('loading-screen').style.display = 'none';
+
+    } catch (err) {
+      clearTimeout(loadingTimeout);
+      console.error('Erreur dashboard:', err);
+      document.getElementById('loading-screen').innerHTML = `
+        <div style="text-align:center; padding:40px;">
+          <div style="font-size:40px; margin-bottom:16px;">❌</div>
+          <div class="load-title" style="margin-bottom:12px;">Erreur inattendue</div>
+          <p style="color:#666; font-size:14px;">${err.message}</p>
+          <a href="connexion.html"
+             style="display:inline-block; margin-top:20px; padding:10px 20px;
+                    background:#7B1C2E; color:white; border-radius:6px;
+                    text-decoration:none; font-size:14px;">
+            Retour connexion
+          </a>
+        </div>
+      `;
+    }
+  }
+
+  function toggleGoal(el) {
+    el.classList.toggle('done');
+  }
+
+  // Déconnexion
+  document.querySelectorAll('#logout-btn, #logout-btn-side')
+    .forEach(btn => {
+      btn.addEventListener('click', async (e) => {
         e.preventDefault();
         await db.auth.signOut();
         window.location.href = 'index.html';
       });
     });
 
-    loadDashboard();
-  </script>
+  loadDashboard();
+</script>
+
 </body>
 </html>
