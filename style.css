@@ -198,6 +198,45 @@ input:focus, select:focus, textarea:focus {
 footer { text-align: center; padding: 20px; border-top: 1px solid #141414; font-size: 12px; color: #333; }
 footer span { color: var(--dore); }
 
+/* ─── Correction centrage accueil + connexion + inscription uniquement ─── */
+
+/* Page d'accueil */
+main:has(> .hero) {
+  min-height: calc(100vh - var(--header-h));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+main:has(> .hero) .hero {
+  margin: 0 auto;
+  text-align: center;
+}
+
+main:has(> .hero) .features {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Pages connexion / inscription */
+main.auth-main,
+main:has(> .card) {
+  min-height: calc(100vh - var(--header-h));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  width: 100%;
+}
+
+main.auth-main .card,
+main:has(> .card) .card {
+  margin: 0 auto;
+}
+
 /* ══════════════════════════════════════
    RESPONSIVE — MOBILE FIRST
 ══════════════════════════════════════ */
