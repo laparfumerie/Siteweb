@@ -451,161 +451,120 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-
 <script>
-  // ── Vérification config ─────────────────────────────────
-  if (!SUPABASE_URL || SUPABASE_URL.includes('XXXXXXX') ||
-      !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.includes('...')) {
-    document.getElementById('loading-screen').innerHTML = `
-      <div style="text-align:center; padding:40px; max-width:400px;">
-        <div style="font-size:40px; margin-bottom:16px;">⚙️</div>
-        <div class="load-title" style="margin-bottom:12px;">Configuration manquante</div>
-        <p style="color:#666; font-size:14px; line-height:1.6;">
-          Ouvre <strong style="color:#C9A84C;">config.js</strong> et remplace
-          <br><code style="color:#e05a72;">SUPABASE_URL</code> et
-          <code style="color:#e05a72;">SUPABASE_ANON_KEY</code>
-          <br>avec tes vraies clés Supabase.
-        </p>
-        <a href="https://supabase.com/dashboard" target="_blank"
-           style="display:inline-block; margin-top:20px; padding:10px 20px;
-                  background:#7B1C2E; color:white; border-radius:6px;
-                  text-decoration:none; font-size:14px;">
-          Ouvrir Supabase →
-        </a>
-      </div>
-    `;
-    throw new Error('Config Supabase manquante');
-  }
-
-  // ── Init Supabase ───────────────────────────────────────
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // ── Timeout de sécurité (5 secondes) ───────────────────
-  const loadingTimeout = setTimeout(() => {
+  const timeout = setTimeout(() => {
     document.getElementById('loading-screen').innerHTML = `
-      <div style="text-align:center; padding:40px; max-width:400px;">
-        <div style="font-size:40px; margin-bottom:16px;">⏱️</div>
-        <div class="load-title" style="margin-bottom:12px;">Connexion lente</div>
-        <p style="color:#666; font-size:14px; line-height:1.6;">
-          Impossible de contacter Supabase.<br>
-          Vérifie tes clés dans <strong style="color:#C9A84C;">config.js</strong>
-          et ta connexion internet.
-        </p>
-        <button onclick="window.location.reload()"
-           style="display:inline-block; margin-top:16px; padding:10px 20px;
-                  background:#7B1C2E; color:white; border-radius:6px;
-                  border:none; cursor:pointer; font-size:14px; margin-right:8px;">
+      <div style="text-align:center; padding:40px; max-width:360px;">
+        <div style="font-size:36px; margin-bottom:14px;">⏱️</div>
+        <div class="load-title" style="margin-bottom:10px;">Connexion lente</div>
+        <p style="color:#555; font-size:14px; margin-bottom:20px;">Vérifie tes clés Supabase dans config.js</p>
+        <button onclick="location.reload()"
+          style="padding:10px 20px; background:#7B1C2E; color:white; border:none;
+                 border-radius:6px; cursor:pointer; font-size:14px; margin-right:8px;">
           Réessayer
         </button>
         <a href="connexion.html"
-           style="display:inline-block; margin-top:16px; padding:10px 20px;
-                  background:#1E1E1E; color:#aaa; border-radius:6px;
-                  text-decoration:none; font-size:14px; border:1px solid #333;">
-          Retour connexion
+          style="padding:10px 20px; background:#1A1A1A; color:#777;
+                 border-radius:6px; text-decoration:none; font-size:14px;">
+          Déconnexion
         </a>
-      </div>
-    `;
+      </div>`;
   }, 5000);
 
-  // ── Chargement dashboard ────────────────────────────────
   async function loadDashboard() {
     try {
-      const { data: { session }, error } = await db.auth.getSession();
+      const { data: { session } } = await db.auth.getSession();
+      clearTimeout(timeout);
 
-      clearTimeout(loadingTimeout); // Annule le timeout si ça répond
-
-      if (error || !session) {
-        window.location.href = 'connexion.html';
-        return;
-      }
+      if (!session) { window.location.href = 'connexion.html'; return; }
 
       const user = session.user;
+      const meta = user.user_metadata || {};
+      const firstName = meta.first_name || user.email.split('@')[0];
 
-      // Nom affiché
-      const firstName = user.user_metadata?.first_name
-        || user.email.split('@')[0];
       document.getElementById('user-name').textContent = firstName;
       document.getElementById('user-email').textContent = user.email;
-
-      // Date
-      const now = new Date();
       document.getElementById('user-date').textContent =
-        now.toLocaleDateString('fr-FR', {
-          weekday: 'long', year: 'numeric',
-          month: 'long', day: 'numeric'
-        });
+        new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-      // Charger objectifs (si la table existe)
+      // Reset auto des compteurs hebdomadaires
+      try { await db.rpc('reset_weekly_goals', { p_user_id: user.id }); } catch(e) {}
+
+      // Points totaux depuis le profil
+      try {
+        const { data: profile } = await db.from('profiles').select('total_points').eq('id', user.id).single();
+        document.getElementById('pts-mois').textContent = profile?.total_points || 0;
+      } catch(e) {}
+
+      // Points gagnés cette semaine (somme des goal_completions de la semaine en cours)
+      try {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+        weekStart.setHours(0,0,0,0);
+
+        const { data: completions } = await db
+          .from('goal_completions')
+          .select('points_earned')
+          .eq('user_id', user.id)
+          .gte('completed_at', weekStart.toISOString());
+
+        const weekPoints = (completions || []).reduce((sum, c) => sum + c.points_earned, 0);
+        document.getElementById('pts-semaine').textContent = weekPoints;
+      } catch(e) {}
+
+      // Objectifs actifs + liste
       let goalsCount = 0;
       try {
         const { data: goals } = await db
-          .from('goals')
-          .select('*')
+          .from('goals').select('*')
           .eq('user_id', user.id)
-          .eq('status', 'actif');
+          .neq('status', 'abandonné');
 
-        goalsCount = goals ? goals.length : 0;
+        const activeGoals = (goals || []).filter(g => g.current_count < g.target_count);
+        goalsCount = activeGoals.length;
 
-        if (goals && goals.length > 0) {
-          document.getElementById('goals-list').innerHTML = goals.map(g => `
+        if (activeGoals.length > 0) {
+          document.getElementById('goals-list').innerHTML = activeGoals.slice(0, 5).map(g => `
             <div class="goal-item">
-              <div class="goal-check" onclick="toggleGoal(this)">
-                <span>✓</span>
-              </div>
+              <div class="goal-check" onclick="window.location.href='objectifs.html'"></div>
               <div class="goal-info">
                 <div class="goal-name">${g.title}</div>
-                <div class="goal-cat">${g.category || 'Objectif'}</div>
+                <div class="goal-cat">${g.current_count}/${g.target_count} · ${g.category || ''}</div>
               </div>
-              <div class="goal-pts">${g.points || 1} pts</div>
+              <div class="goal-pts">${g.points}pt</div>
             </div>
           `).join('');
         }
-      } catch (e) {
-        // Table pas encore créée, on ignore
-      }
+      } catch(e) {}
 
-      // Stats
-      document.getElementById('pts-semaine').textContent = '0';
-      document.getElementById('pts-mois').textContent = '0';
       document.getElementById('nb-objectifs').textContent = goalsCount;
-      document.getElementById('etoiles').textContent = '⭐ 0';
-
-      // Cacher le loading
       document.getElementById('loading-screen').style.display = 'none';
 
-    } catch (err) {
-      clearTimeout(loadingTimeout);
-      console.error('Erreur dashboard:', err);
+    } catch(err) {
+      clearTimeout(timeout);
       document.getElementById('loading-screen').innerHTML = `
         <div style="text-align:center; padding:40px;">
-          <div style="font-size:40px; margin-bottom:16px;">❌</div>
-          <div class="load-title" style="margin-bottom:12px;">Erreur inattendue</div>
-          <p style="color:#666; font-size:14px;">${err.message}</p>
-          <a href="connexion.html"
-             style="display:inline-block; margin-top:20px; padding:10px 20px;
-                    background:#7B1C2E; color:white; border-radius:6px;
-                    text-decoration:none; font-size:14px;">
+          <div style="font-size:36px; margin-bottom:14px;">❌</div>
+          <div class="load-title">Erreur</div>
+          <p style="color:#555; font-size:13px; margin-top:8px;">${err.message}</p>
+          <a href="connexion.html" style="display:inline-block; margin-top:18px; padding:10px 20px;
+             background:#7B1C2E; color:white; border-radius:6px; text-decoration:none; font-size:14px;">
             Retour connexion
           </a>
-        </div>
-      `;
+        </div>`;
     }
   }
 
-  function toggleGoal(el) {
-    el.classList.toggle('done');
-  }
-
-  // Déconnexion
-  document.querySelectorAll('#logout-btn, #logout-btn-side')
-    .forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await db.auth.signOut();
-        window.location.href = 'index.html';
-      });
+  document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+    btn.addEventListener('click', async(e) => {
+      e.preventDefault();
+      await db.auth.signOut();
+      window.location.href = 'index.html';
     });
+  });
 
   loadDashboard();
 </script>
