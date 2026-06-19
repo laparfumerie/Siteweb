@@ -136,81 +136,143 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script>
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="config.js"></script>
+<script>
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function showMsg(type, text) {
-      const el = document.getElementById('msg');
-      el.className = `msg ${type}`;
-      el.textContent = text;
-    }
+  function showMsg(type, text) {
+    const el = document.getElementById('msg');
+    el.className = `msg ${type}`;
+    el.textContent = text;
+  }
 
-    async function loadProfile() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) { window.location.href = 'connexion.html'; return; }
+  async function loadProfile() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'connexion.html'; return; }
 
-      const user = session.user;
-      const meta = user.user_metadata || {};
-      const firstName = meta.first_name || '';
-      const lastName  = meta.last_name  || '';
-      const initials  = (firstName[0] || '') + (lastName[0] || '') || user.email[0].toUpperCase();
+    const user = session.user;
+    const meta = user.user_metadata || {};
+    const firstName = meta.first_name || '';
+    const lastName  = meta.last_name  || '';
+    const initials  = (firstName[0] || '') + (lastName[0] || '') || user.email[0].toUpperCase();
 
-      document.getElementById('avatar-initials').textContent = initials;
-      document.getElementById('display-name').textContent = `${firstName} ${lastName}`.trim() || user.email;
-      document.getElementById('display-email').textContent = user.email;
-      document.getElementById('firstname').value = firstName;
-      document.getElementById('lastname').value  = lastName;
-      document.getElementById('email').value     = user.email;
-    }
+    document.getElementById('avatar-initials').textContent = initials;
+    document.getElementById('display-name').textContent = `${firstName} ${lastName}`.trim() || user.email;
+    document.getElementById('display-email').textContent = user.email;
+    document.getElementById('firstname').value = firstName;
+    document.getElementById('lastname').value  = lastName;
+    document.getElementById('email').value     = user.email;
 
-    document.getElementById('profile-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = e.target.querySelector('button');
-      btn.textContent = 'Enregistrement…'; btn.disabled = true;
+    // Points totaux + objectifs depuis profiles
+    try {
+      const { data: profile } = await db
+        .from('profiles')
+        .select('total_points')
+        .eq('id', user.id)
+        .single();
 
-      const firstname = document.getElementById('firstname').value.trim();
-      const lastname  = document.getElementById('lastname').value.trim();
-      const newPwd    = document.getElementById('new-password').value;
-      const confirmPwd = document.getElementById('confirm-password').value;
+      document.getElementById('stat-pts').textContent = profile?.total_points || 0;
+    } catch(e) {}
 
-      if (newPwd && newPwd !== confirmPwd) {
-        showMsg('error', 'Les mots de passe ne correspondent pas.');
-        btn.textContent = 'Enregistrer les modifications'; btn.disabled = false;
-        return;
-      }
-      if (newPwd && newPwd.length < 8) {
-        showMsg('error', 'Le mot de passe doit faire au moins 8 caractères.');
-        btn.textContent = 'Enregistrer les modifications'; btn.disabled = false;
-        return;
-      }
+    // Objectifs actifs
+    try {
+      const { data: goals } = await db
+        .from('goals')
+        .select('*')
+        .eq('user_id', user.id)
+        .neq('status', 'abandonné');
 
-      const updateData = { data: { first_name: firstname, last_name: lastname, full_name: `${firstname} ${lastname}` } };
-      if (newPwd) updateData.password = newPwd;
+      const activeGoals = (goals || []).filter(g => g.current_count < g.target_count);
+      document.getElementById('stat-goals').textContent = activeGoals.length;
+    } catch(e) {}
 
-      const { error } = await db.auth.updateUser(updateData);
+    // Points cette semaine
+    try {
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+      weekStart.setHours(0,0,0,0);
 
+      const { data: completions } = await db
+        .from('goal_completions')
+        .select('points_earned')
+        .eq('user_id', user.id)
+        .gte('completed_at', weekStart.toISOString());
+
+      const weekPoints = (completions || []).reduce((sum, c) => sum + c.points_earned, 0);
+      document.getElementById('stat-week').textContent = weekPoints;
+    } catch(e) {}
+
+    // Points ce mois
+    try {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0,0,0,0);
+
+      const { data: completionsMonth } = await db
+        .from('goal_completions')
+        .select('points_earned')
+        .eq('user_id', user.id)
+        .gte('completed_at', monthStart.toISOString());
+
+      const monthPoints = (completionsMonth || []).reduce((sum, c) => sum + c.points_earned, 0);
+      document.getElementById('stat-month').textContent = monthPoints;
+    } catch(e) {}
+  }
+
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.textContent = 'Enregistrement…'; btn.disabled = true;
+
+    const firstname = document.getElementById('firstname').value.trim();
+    const lastname  = document.getElementById('lastname').value.trim();
+    const newPwd    = document.getElementById('new-password').value;
+    const confirmPwd = document.getElementById('confirm-password').value;
+
+    if (newPwd && newPwd !== confirmPwd) {
+      showMsg('error', 'Les mots de passe ne correspondent pas.');
       btn.textContent = 'Enregistrer les modifications'; btn.disabled = false;
+      return;
+    }
+    if (newPwd && newPwd.length < 8) {
+      showMsg('error', 'Le mot de passe doit faire au moins 8 caractères.');
+      btn.textContent = 'Enregistrer les modifications'; btn.disabled = false;
+      return;
+    }
 
-      if (error) { showMsg('error', error.message); return; }
+    const updateData = { data: { first_name: firstname, last_name: lastname, full_name: `${firstname} ${lastname}` } };
+    if (newPwd) updateData.password = newPwd;
 
-      showMsg('success', '✅ Profil mis à jour avec succès !');
-      document.getElementById('display-name').textContent = `${firstname} ${lastname}`.trim();
-      document.getElementById('avatar-initials').textContent = (firstname[0]||'') + (lastname[0]||'');
-      document.getElementById('new-password').value = '';
-      document.getElementById('confirm-password').value = '';
+    const { error } = await db.auth.updateUser(updateData);
+
+    btn.textContent = 'Enregistrer les modifications'; btn.disabled = false;
+
+    if (error) { showMsg('error', error.message); return; }
+
+    // Met aussi à jour la table profiles pour rester cohérent
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      await db.from('profiles').update({ first_name: firstname, last_name: lastname }).eq('id', session.user.id);
+    }
+
+    showMsg('success', '✅ Profil mis à jour avec succès !');
+    document.getElementById('display-name').textContent = `${firstname} ${lastname}`.trim();
+    document.getElementById('avatar-initials').textContent = (firstname[0]||'') + (lastname[0]||'');
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-password').value = '';
+  });
+
+  document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await db.auth.signOut();
+      window.location.href = 'index.html';
     });
+  });
 
-    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await db.auth.signOut();
-        window.location.href = 'index.html';
-      });
-    });
-
-    loadProfile();
-  </script>
+  loadProfile();
+</script>
+        
 </body>
 </html>
