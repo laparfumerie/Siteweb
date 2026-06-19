@@ -108,95 +108,104 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script>
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script src="config.js"></script>
+<script>
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function showTab(name, btn) {
-      document.getElementById('tab-membres').style.display = name === 'membres' ? 'block' : 'none';
-      document.getElementById('tab-familles').style.display = name === 'familles' ? 'block' : 'none';
-      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
+  function showTab(name, btn) {
+    document.getElementById('tab-membres').style.display = name === 'membres' ? 'block' : 'none';
+    document.getElementById('tab-familles').style.display = name === 'familles' ? 'block' : 'none';
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
 
-    const medals = ['r1', 'r2', 'r3'];
-    const medalEmojis = ['🥇', '🥈', '🥉'];
+  const medals = ['r1', 'r2', 'r3'];
+  const medalEmojis = ['🥇', '🥈', '🥉'];
 
-    async function loadRankings() {
-      const { data: { session } } = await db.auth.getSession();
-      if (!session) { window.location.href = 'connexion.html'; return; }
+  async function loadRankings() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'connexion.html'; return; }
 
-      // Classement membres via profiles
-      try {
-        const { data: profiles } = await db
-          .from('profiles')
-          .select('*')
-          .order('total_points', { ascending: false })
-          .limit(20);
+    // Classement membres via profiles
+    try {
+      const { data: profiles } = await db
+        .from('profiles')
+        .select('*')
+        .order('total_points', { ascending: false })
+        .limit(20);
 
-        if (profiles && profiles.length) {
-          document.getElementById('members-list').innerHTML = profiles.map((p, i) => {
-            const initials = ((p.first_name||'')[0]||'') + ((p.last_name||'')[0]||'') || '?';
-            return `<div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
-              <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
-              <div class="rank-name">
-                <div class="avatar">${initials}</div>
-                <div class="rank-name-text">
-                  <div class="main">${p.first_name || ''} ${p.last_name || ''}</div>
-                  <div class="sub">${p.family_name || 'Sans famille'}</div>
-                </div>
+      if (profiles && profiles.length) {
+        // Compte les objectifs complétés pour chaque membre
+        const profilesWithGoals = await Promise.all(profiles.map(async (p) => {
+          const { data: completions } = await db
+            .from('goal_completions')
+            .select('id')
+            .eq('user_id', p.id);
+          return { ...p, goals_completed: completions ? completions.length : 0 };
+        }));
+
+        document.getElementById('members-list').innerHTML = profilesWithGoals.map((p, i) => {
+          const initials = ((p.first_name||'')[0]||'') + ((p.last_name||'')[0]||'') || '?';
+          return `<div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
+            <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
+            <div class="rank-name">
+              <div class="avatar">${initials}</div>
+              <div class="rank-name-text">
+                <div class="main">${p.first_name || ''} ${p.last_name || ''}</div>
+                <div class="sub">${p.family_id ? 'En famille' : 'Sans famille'}</div>
               </div>
-              <div class="rank-pts">${p.total_points || 0} pts</div>
-              <div class="rank-stars">${p.goals_completed || 0} objectifs</div>
-            </div>`;
-          }).join('');
-        } else {
-          document.getElementById('members-list').innerHTML = `
-            <div class="empty-state"><div class="icon">🏆</div><p>Aucun membre à afficher encore.</p></div>`;
-        }
-      } catch (e) {
-        document.getElementById('members-list').innerHTML = `
-          <div class="empty-state"><div class="icon">⚙️</div><p>Table profiles non configurée.</p></div>`;
-      }
-
-      // Classement familles
-      try {
-        const { data: families } = await db
-          .from('families')
-          .select('*')
-          .order('total_points', { ascending: false });
-
-        if (families && families.length) {
-          document.getElementById('families-list').innerHTML = families.map((f, i) => `
-            <div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
-              <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
-              <div class="rank-name">
-                <div class="avatar" style="background: linear-gradient(135deg, #7B1C2E, #5C1522);">🏠</div>
-                <div class="rank-name-text">
-                  <div class="main">${f.name}</div>
-                  <div class="sub">${f.member_count || 0} membres</div>
-                </div>
-              </div>
-              <div class="rank-pts">${f.total_points || 0} pts</div>
-              <div class="rank-stars">${'⭐'.repeat(f.stars || 0)} ${f.stars || 0}</div>
             </div>
-          `).join('');
-        } else {
-          document.getElementById('families-list').innerHTML = `
-            <div class="empty-state"><div class="icon">🏠</div><p>Aucune famille à afficher encore.</p></div>`;
-        }
-      } catch (e) {
-        document.getElementById('families-list').innerHTML = `
-          <div class="empty-state"><div class="icon">⚙️</div><p>Table families non configurée.</p></div>`;
+            <div class="rank-pts">${p.total_points || 0} pts</div>
+            <div class="rank-stars">${p.goals_completed} validations</div>
+          </div>`;
+        }).join('');
+      } else {
+        document.getElementById('members-list').innerHTML = `
+          <div class="empty-state"><div class="icon">🏆</div><p>Aucun membre à afficher encore.</p></div>`;
       }
+    } catch (e) {
+      document.getElementById('members-list').innerHTML = `
+        <div class="empty-state"><div class="icon">⚙️</div><p>Erreur : ${e.message}</p></div>`;
     }
 
-    document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
-      btn.addEventListener('click', async (e) => { e.preventDefault(); await db.auth.signOut(); window.location.href = 'index.html'; });
-    });
+    // Classement familles
+    try {
+      const { data: families } = await db
+        .from('families')
+        .select('*')
+        .order('total_points', { ascending: false });
 
-    loadRankings();
-  </script>
+      if (families && families.length) {
+        document.getElementById('families-list').innerHTML = families.map((f, i) => `
+          <div class="rank-row ${i < 3 ? 'top' + (i+1) : ''}">
+            <div class="rank-num ${medals[i] || ''}">${i < 3 ? medalEmojis[i] : i+1}</div>
+            <div class="rank-name">
+              <div class="avatar" style="background: linear-gradient(135deg, #7B1C2E, #5C1522);">🏠</div>
+              <div class="rank-name-text">
+                <div class="main">${f.name}</div>
+              </div>
+            </div>
+            <div class="rank-pts">${f.total_points || 0} pts</div>
+            <div class="rank-stars">${'⭐'.repeat(f.stars_count || 0)} ${f.stars_count || 0}</div>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('families-list').innerHTML = `
+          <div class="empty-state"><div class="icon">🏠</div><p>Aucune famille à afficher encore.</p></div>`;
+      }
+    } catch (e) {
+      document.getElementById('families-list').innerHTML = `
+        <div class="empty-state"><div class="icon">⚙️</div><p>Erreur : ${e.message}</p></div>`;
+    }
+  }
+
+  document.querySelectorAll('#logout-btn, #logout-side').forEach(btn => {
+    btn.addEventListener('click', async (e) => { e.preventDefault(); await db.auth.signOut(); window.location.href = 'index.html'; });
+  });
+
+  loadRankings();
+ </script>
+      
 </body>
 </html>
