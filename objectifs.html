@@ -6,46 +6,44 @@
   <title>La Parfumerie — Objectifs</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    body { background-color: #0D0D0D; }
-    .dash-wrapper { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 62px); }
-    .sidebar { background-color: #111; border-right: 1px solid #222; padding: 28px 16px; display: flex; flex-direction: column; gap: 4px; }
-    .sidebar-label { font-size: 10px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 1.5px; padding: 0 12px; margin: 16px 0 6px; }
-    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; color: #666; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
-    .sidebar-link:hover { background-color: #1A1A1A; color: #F5F0EB; }
-    .sidebar-link.active { background-color: rgba(123,28,46,0.15); color: #F5F0EB; border-left-color: #7B1C2E; }
-    .sidebar-icon { font-size: 16px; width: 20px; text-align: center; }
-    .content { padding: 36px 40px; }
-    .page-title { font-family: 'Playfair Display', serif; font-size: 26px; color: #F5F0EB; margin-bottom: 4px; }
-    .page-sub { font-size: 14px; color: #555; margin-bottom: 32px; }
-
-    /* Bouton + modal */
     .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
     .btn-new { padding: 10px 20px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .btn-new:hover { background: #5C1522; }
 
-    /* Filtres */
     .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
     .filter-btn { padding: 7px 16px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 20px; color: #666; font-size: 13px; cursor: pointer; transition: all 0.2s; }
     .filter-btn:hover, .filter-btn.active { background: rgba(123,28,46,0.2); border-color: #7B1C2E; color: #F5F0EB; }
 
-    /* Grille objectifs */
     .goals-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
     .goal-card { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 20px; transition: border-color 0.2s; }
     .goal-card:hover { border-color: #333; }
-    .goal-card.done { opacity: 0.5; }
+    .goal-card.complete { border-color: rgba(39,174,96,0.4); }
     .goal-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
     .goal-title { font-size: 15px; font-weight: 600; color: #F5F0EB; flex: 1; }
     .goal-pts-badge { background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3); border-radius: 4px; padding: 3px 8px; font-size: 12px; font-weight: 700; color: #C9A84C; white-space: nowrap; margin-left: 8px; }
     .goal-cat { display: inline-block; font-size: 11px; font-weight: 600; color: #666; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
-    .goal-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 16px; }
-    .goal-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .goal-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 14px; }
+    .goal-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
     .goal-tag { font-size: 11px; color: #444; display: flex; align-items: center; gap: 4px; }
+
+    /* Barre de progression */
+    .progress-wrap { margin-bottom: 14px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #888; margin-bottom: 6px; }
+    .progress-label .count { font-weight: 700; color: #C9A84C; }
+    .progress-bar { height: 8px; background: #1E1E1E; border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #7B1C2E, #C9A84C); border-radius: 4px; transition: width 0.3s ease; }
+    .progress-fill.full { background: linear-gradient(90deg, #27AE60, #2ecc71); }
+
     .goal-actions { display: flex; gap: 8px; }
-    .btn-validate { flex: 1; padding: 9px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .btn-validate:hover { background: #5C1522; }
-    .btn-validate.validated { background: #1A1A1A; color: #27AE60; border: 1px solid #27AE60; cursor: default; }
+    .btn-plus { flex: 1; padding: 9px; background: #7B1C2E; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-plus:hover { background: #5C1522; }
+    .btn-plus:disabled { background: #1A1A1A; color: #27AE60; border: 1px solid #27AE60; cursor: default; }
+    .btn-minus { padding: 9px 12px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 6px; color: #888; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-minus:hover { border-color: #7B1C2E; color: #e05a72; }
     .btn-delete { padding: 9px 12px; background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 6px; color: #555; font-size: 13px; cursor: pointer; transition: all 0.2s; }
     .btn-delete:hover { border-color: #C0392B; color: #e74c3c; }
+
+    .complete-banner { background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.3); border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #2ecc71; text-align: center; margin-bottom: 12px; font-weight: 600; }
 
     /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
@@ -74,7 +72,7 @@
     .empty-state .icon { font-size: 40px; margin-bottom: 16px; }
     .empty-state p { font-size: 15px; margin-bottom: 20px; }
 
-    @media (max-width: 768px) { .dash-wrapper { grid-template-columns: 1fr; } .sidebar { display: none; } .content { padding: 24px 16px; } .form-row2 { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .form-row2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -102,15 +100,15 @@
       <div class="top-bar">
         <div>
           <h1 class="page-title">Mes objectifs</h1>
-          <p class="page-sub">Crée et suis tes objectifs personnels</p>
+          <p class="page-sub">Coche ta progression au fur et à mesure de la semaine</p>
         </div>
         <button class="btn-new" onclick="openModal()">+ Nouvel objectif</button>
       </div>
 
       <div class="filters">
         <button class="filter-btn active" onclick="filterGoals('tous', this)">Tous</button>
-        <button class="filter-btn" onclick="filterGoals('actif', this)">Actifs</button>
-        <button class="filter-btn" onclick="filterGoals('terminé', this)">Terminés</button>
+        <button class="filter-btn" onclick="filterGoals('actif', this)">En cours</button>
+        <button class="filter-btn" onclick="filterGoals('terminé', this)">Semaine validée</button>
         <button class="filter-btn" onclick="filterGoals('abandonné', this)">Abandonnés</button>
       </div>
 
@@ -157,10 +155,10 @@
             <label>Difficulté *</label>
             <select id="g-difficulty" required>
               <option value="">-- Choisir --</option>
-              <option value="1">Facile (1 pt)</option>
-              <option value="2">Moyen (2 pts)</option>
-              <option value="3">Difficile (3 pts)</option>
-              <option value="5">Très difficile (5 pts)</option>
+              <option value="1">Facile (1 pt/coche)</option>
+              <option value="2">Moyen (2 pts/coche)</option>
+              <option value="3">Difficile (3 pts/coche)</option>
+              <option value="5">Très difficile (5 pts/coche)</option>
             </select>
           </div>
         </div>
@@ -170,18 +168,22 @@
         </div>
         <div class="form-row2">
           <div class="form-group">
+            <label>Combien de fois ? *</label>
+            <input type="number" id="g-target" min="1" max="30" value="3" required>
+          </div>
+          <div class="form-group">
             <label>Fréquence</label>
             <select id="g-frequency">
-              <option value="quotidien">Quotidien</option>
-              <option value="hebdomadaire" selected>Hebdomadaire</option>
-              <option value="mensuel">Mensuel</option>
+              <option value="hebdomadaire" selected>Par semaine</option>
+              <option value="quotidien">Par jour</option>
+              <option value="mensuel">Par mois</option>
               <option value="unique">Unique</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Date de fin</label>
-            <input type="date" id="g-end">
-          </div>
+        </div>
+        <div class="form-group">
+          <label>Date de fin (optionnel)</label>
+          <input type="date" id="g-end">
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-cancel" onclick="closeModal()">Annuler</button>
@@ -202,52 +204,73 @@
 
     function openModal() { document.getElementById('modal').classList.add('open'); }
     function closeModal() { document.getElementById('modal').classList.remove('open'); document.getElementById('goal-form').reset(); }
-
     function showModalMsg(type, text) {
       const el = document.getElementById('modal-msg');
       el.className = `msg ${type}`; el.textContent = text;
     }
 
-    const diffMap = { '1': 'Facile', '2': 'Moyen', '3': 'Difficile', '5': 'Très difficile' };
+    function statusFor(g) {
+      if (g.status === 'abandonné') return 'abandonné';
+      return g.current_count >= g.target_count ? 'terminé' : 'actif';
+    }
 
     function renderGoals(goals) {
       const container = document.getElementById('goals-container');
-      const filtered = currentFilter === 'tous' ? goals : goals.filter(g => g.status === currentFilter);
+      const filtered = currentFilter === 'tous' ? goals : goals.filter(g => statusFor(g) === currentFilter);
 
       if (!filtered.length) {
         container.innerHTML = `<div class="empty-state"><div class="icon">🎯</div><p>Aucun objectif dans cette catégorie.</p></div>`;
         return;
       }
 
-      container.innerHTML = `<div class="goals-grid">${filtered.map(g => `
-        <div class="goal-card ${g.status === 'terminé' ? 'done' : ''}">
+      container.innerHTML = `<div class="goals-grid">${filtered.map(g => {
+        const pct = Math.min(100, Math.round((g.current_count / g.target_count) * 100));
+        const isFull = g.current_count >= g.target_count;
+        const isAbandoned = g.status === 'abandonné';
+
+        return `
+        <div class="goal-card ${isFull ? 'complete' : ''}">
           <div class="goal-top">
             <div class="goal-title">${g.title}</div>
-            <div class="goal-pts-badge">${g.points} pts</div>
+            <div class="goal-pts-badge">${g.points} pts/coche</div>
           </div>
           <div class="goal-cat">${g.category}</div>
-          <div class="goal-desc">${g.description || ''}</div>
+          ${g.description ? `<div class="goal-desc">${g.description}</div>` : ''}
           <div class="goal-meta">
             <span class="goal-tag">🔄 ${g.frequency}</span>
-            <span class="goal-tag">📊 ${diffMap[g.points] || g.points + ' pts'}</span>
             ${g.end_date ? `<span class="goal-tag">📅 ${new Date(g.end_date).toLocaleDateString('fr-FR')}</span>` : ''}
           </div>
+
+          ${isFull ? `<div class="complete-banner">✅ Objectif validé pour cette période !</div>` : ''}
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Progression</span>
+              <span class="count">${g.current_count} / ${g.target_count}</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill ${isFull ? 'full' : ''}" style="width:${pct}%"></div>
+            </div>
+          </div>
+
           <div class="goal-actions">
-            <button class="btn-validate ${g.status === 'terminé' ? 'validated' : ''}"
-              onclick="validateGoal('${g.id}', this)"
-              ${g.status === 'terminé' ? 'disabled' : ''}>
-              ${g.status === 'terminé' ? '✅ Terminé' : '✓ Valider'}
+            <button class="btn-minus" onclick="updateProgress('${g.id}', -1)" ${g.current_count <= 0 || isAbandoned ? 'disabled' : ''}>−</button>
+            <button class="btn-plus" onclick="updateProgress('${g.id}', 1)" ${isFull || isAbandoned ? 'disabled' : ''}>
+              ${isFull ? '✅ Complété' : '+1 fait'}
             </button>
-            <button class="btn-delete" onclick="deleteGoal('${g.id}', this)">🗑</button>
+            <button class="btn-delete" onclick="deleteGoal('${g.id}')">🗑</button>
           </div>
         </div>
-      `).join('')}</div>`;
+      `}).join('')}</div>`;
     }
 
     async function loadGoals() {
       const { data: { session } } = await db.auth.getSession();
       if (!session) { window.location.href = 'connexion.html'; return; }
       currentUser = session.user;
+
+      // Reset auto des compteurs si nouvelle semaine
+      try { await db.rpc('reset_weekly_goals', { p_user_id: currentUser.id }); } catch(e) {}
 
       const { data: goals, error } = await db
         .from('goals').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
@@ -257,8 +280,7 @@
           document.getElementById('goals-container').innerHTML = `
             <div class="empty-state">
               <div class="icon">⚙️</div>
-              <p>La table <strong>goals</strong> n'existe pas encore dans Supabase.<br>
-              Crée-la depuis le SQL Editor de Supabase.</p>
+              <p>La table <strong>goals</strong> n'est pas configurée correctement.<br>Vérifie le script SQL.</p>
             </div>`;
           return;
         }
@@ -285,6 +307,7 @@
       const points   = parseInt(document.getElementById('g-difficulty').value);
       const desc     = document.getElementById('g-desc').value.trim();
       const freq     = document.getElementById('g-frequency').value;
+      const target   = parseInt(document.getElementById('g-target').value) || 1;
       const endDate  = document.getElementById('g-end').value || null;
 
       if (!title || !category || !points) {
@@ -298,6 +321,8 @@
         title, category, points,
         description: desc,
         frequency: freq,
+        target_count: target,
+        current_count: 0,
         end_date: endDate,
         status: 'actif'
       }]).select();
@@ -311,17 +336,53 @@
       closeModal();
     });
 
-    async function validateGoal(id, btn) {
-      btn.textContent = '…'; btn.disabled = true;
-      const { error } = await db.from('goals').update({ status: 'terminé' }).eq('id', id);
-      if (error) { alert(error.message); btn.textContent = '✓ Valider'; btn.disabled = false; return; }
-      const g = allGoals.find(g => g.id === id);
-      if (g) g.status = 'terminé';
+    async function updateProgress(id, delta) {
+      const goal = allGoals.find(g => g.id === id);
+      if (!goal) return;
+
+      const newCount = Math.max(0, Math.min(goal.target_count, goal.current_count + delta));
+      if (newCount === goal.current_count) return;
+
+      // Met à jour le compteur de l'objectif
+      const { error } = await db.from('goals')
+        .update({ current_count: newCount })
+        .eq('id', id);
+
+      if (error) { alert(error.message); return; }
+
+      goal.current_count = newCount;
+
+      // Enregistre/retire une ligne d'historique + ajuste les points du profil
+      if (delta > 0) {
+        await db.from('goal_completions').insert([{
+          goal_id: id,
+          user_id: currentUser.id,
+          points_earned: goal.points,
+          week_start: new Date().toISOString().split('T')[0]
+        }]);
+        await adjustUserPoints(goal.points);
+      } else {
+        await db.from('goal_completions')
+          .delete()
+          .eq('goal_id', id)
+          .eq('user_id', currentUser.id)
+          .order('completed_at', { ascending: false })
+          .limit(1);
+        await adjustUserPoints(-goal.points);
+      }
+
       renderGoals(allGoals);
     }
 
-    async function deleteGoal(id, btn) {
-      if (!confirm('Supprimer cet objectif ?')) return;
+    async function adjustUserPoints(delta) {
+      const { data: profile } = await db.from('profiles').select('total_points').eq('id', currentUser.id).single();
+      const current = profile?.total_points || 0;
+      await db.from('profiles').update({ total_points: Math.max(0, current + delta) }).eq('id', currentUser.id);
+    }
+
+    async function deleteGoal(id) {
+      if (!confirm('Supprimer cet objectif et son historique ?')) return;
+      await db.from('goal_completions').delete().eq('goal_id', id);
       await db.from('goals').delete().eq('id', id);
       allGoals = allGoals.filter(g => g.id !== id);
       renderGoals(allGoals);
